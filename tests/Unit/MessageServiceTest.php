@@ -9,7 +9,7 @@ use App\Repositories\Contracts\RecipientRepositoryInterface;
 use App\Services\MessageService;
 use Illuminate\Database\Eloquent\Collection;
 use Mockery;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class MessageServiceTest extends TestCase
 {
@@ -66,7 +66,7 @@ class MessageServiceTest extends TestCase
     public function test_create_message_with_recipients_content_too_long(): void
     {
         // Arrange
-        $content = str_repeat('a', 161); // 161 karakter
+        $content = str_repeat('a', 164); // 164 karakter
         $recipients = [
             ['phone_number' => '+905551234567', 'name' => 'John Doe'],
         ];

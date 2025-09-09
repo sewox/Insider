@@ -92,8 +92,8 @@ class MessageService
     public function createMessageWithRecipients(string $content, array $recipients): Message
     {
         // Mesaj içeriği karakter sınırı kontrolü
-        if (strlen($content) > 140) { // SMS için genel limit
-            throw new \InvalidArgumentException('Mesaj içeriği çok uzun. Maksimum 140 karakter olmalıdır.');
+        if (strlen($content) > 160) { // SMS için genel limit
+            throw new \InvalidArgumentException('Mesaj içeriği çok uzun. Maksimum 160 karakter olmalıdır.');
         }
 
         // Mesaj oluştur
