@@ -19,11 +19,25 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Mesaj API Routes
+// Mesaj API Routes with Rate Limiting
 Route::prefix('messages')->group(function () {
-    Route::get('/', [MessageController::class, 'index']); // Gönderilmiş mesajları listele
-    Route::post('/', [MessageController::class, 'store']); // Yeni mesaj oluştur
-    Route::get('/sent/list', [MessageController::class, 'sentList']); // Gönderilmiş mesaj ID'lerini listele
-    Route::get('/status/{messageId}', [MessageController::class, 'checkStatus']); // Mesaj durumunu kontrol et
-    Route::get('/{id}', [MessageController::class, 'show']); // Belirli mesajı getir
+    // Mesaj oluşturma - 10 istek/dakika
+    Route::post('/', [MessageController::class, 'store'])
+        ->middleware('rate.limit:message.create,10,1');
+    
+    // Mesaj listeleme - 30 istek/dakika
+    Route::get('/', [MessageController::class, 'index'])
+        ->middleware('rate.limit:message.list,30,1');
+    
+    // Gönderilmiş mesaj ID'lerini listele - 20 istek/dakika
+    Route::get('/sent/list', [MessageController::class, 'sentList'])
+        ->middleware('rate.limit:message.sent,20,1');
+    
+    // Mesaj durumunu kontrol et - 60 istek/dakika
+    Route::get('/status/{messageId}', [MessageController::class, 'checkStatus'])
+        ->middleware('rate.limit:message.status,60,1');
+    
+    // Belirli mesajı getir - 30 istek/dakika
+    Route::get('/{id}', [MessageController::class, 'show'])
+        ->middleware('rate.limit:message.show,30,1');
 });

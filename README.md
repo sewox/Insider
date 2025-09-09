@@ -16,6 +16,7 @@ Bu proje, belirli bir segmentteki kullanıcılara toplu mesaj göndermek için t
 - ✅ **Swagger/OpenAPI** dokümantasyonu
 - ✅ **Unit ve Integration** testler
 - ✅ **RESTful API** standartları
+- ✅ **Rate Limiting** ile API koruması
 
 ## Teknik Gereksinimler
 
@@ -196,6 +197,32 @@ php artisan messages:process --limit=2
 
 ### 3. API Endpoints
 
+> **Rate Limiting**: Tüm API endpoint'leri rate limiting ile korunmaktadır. Limit aşıldığında 429 status code döner.
+
+#### Rate Limit Kuralları
+- **Mesaj Oluşturma**: 10 istek/dakika
+- **Mesaj Listeleme**: 30 istek/dakika
+- **Gönderilmiş Mesajlar**: 20 istek/dakika
+- **Mesaj Durumu**: 60 istek/dakika
+- **Mesaj Detayı**: 30 istek/dakika
+
+#### Rate Limit Headers
+```
+X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 5
+Retry-After: 45
+```
+
+#### Rate Limit Error Response
+```json
+{
+    "error": "Too Many Requests",
+    "message": "Rate limit exceeded. Please try again later.",
+    "retry_after": 45,
+    "max_attempts": 10
+}
+```
+
 #### Mesaj Oluştur
 ```bash
 POST /api/messages
@@ -249,8 +276,11 @@ http://localhost:8000/api/documentation
 app/
 ├── Console/Commands/
 │   └── ProcessMessagesCommand.php    # Mesaj işleme komutu
-├── Http/Controllers/Api/
-│   └── MessageController.php         # API Controller
+├── Http/
+│   ├── Controllers/Api/
+│   │   └── MessageController.php     # API Controller
+│   └── Middleware/
+│       └── RateLimitMiddleware.php   # Rate limiting middleware
 ├── Jobs/
 │   └── SendMessageJob.php            # SMS gönderim job'ı
 ├── Models/
@@ -264,6 +294,16 @@ app/
 │   └── SmsService.php                # SMS servisi
 └── Providers/
     └── RepositoryServiceProvider.php # Repository binding'leri
+
+tests/
+├── Feature/
+│   ├── ExampleTest.php               # Feature test örneği
+│   ├── MessageApiTest.php            # API endpoint testleri
+│   └── RateLimitTest.php             # Rate limiting testleri
+└── Unit/
+    ├── ExampleTest.php               # Unit test örneği
+    ├── MessageServiceTest.php        # MessageService testleri
+    └── SendMessageJobTest.php        # SendMessageJob testleri
 ```
 
 ## Test
@@ -287,6 +327,19 @@ docker-compose exec app php artisan test --testsuite=Feature
 ```bash
 docker-compose exec app php artisan test
 ```
+
+#### Rate Limiting Testleri
+
+```bash
+# Rate limiting testlerini çalıştır
+docker-compose exec app php artisan test tests/Feature/RateLimitTest.php
+```
+
+**Rate Limiting Test Coverage:**
+- ✅ Mesaj oluşturma rate limit testi
+- ✅ Mesaj listeleme rate limit testi  
+- ✅ Rate limit header kontrolü
+- ✅ Rate limit reset testi
 
 ### Manuel Test
 
@@ -443,6 +496,42 @@ API'yi test etmek için hazır Postman collection'ı:
 - ✅ Redis cache (Bonus)
 - ✅ Swagger dokümantasyonu
 - ✅ Unit/Integration testler
+
+## Güvenlik
+
+### Rate Limiting
+API endpoint'leri rate limiting ile korunmaktadır:
+
+#### Rate Limit Kuralları
+- **Mesaj Oluşturma**: 10 istek/dakika
+- **Mesaj Listeleme**: 30 istek/dakika
+- **Gönderilmiş Mesajlar**: 20 istek/dakika
+- **Mesaj Durumu**: 60 istek/dakika
+- **Mesaj Detayı**: 30 istek/dakika
+
+#### Rate Limit Özellikleri
+- **IP Tabanlı**: Her IP adresi için ayrı limit
+- **Redis Backend**: Rate limit verileri Redis'te saklanır
+- **Configurable**: Limit ve decay time ayarlanabilir
+- **Standard Headers**: X-RateLimit-Limit, X-RateLimit-Remaining
+- **Error Response**: 429 status code ile JSON response
+
+#### Rate Limit Aşımı
+Limit aşıldığında:
+```json
+{
+    "error": "Too Many Requests",
+    "message": "Rate limit exceeded. Please try again later.",
+    "retry_after": 45,
+    "max_attempts": 10
+}
+```
+
+### Güvenlik Önerileri
+- API key'leri güvenli şekilde saklayın
+- HTTPS kullanın
+- Rate limit kurallarını ihtiyacınıza göre ayarlayın
+- Webhook URL'lerini güvenli tutun
 
 ## Lisans
 
