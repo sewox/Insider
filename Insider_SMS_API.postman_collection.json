@@ -1,0 +1,493 @@
+{
+	"info": {
+		"_postman_id": "insider-sms-api-collection",
+		"name": "Insider SMS API",
+		"description": "Otomatik mesaj gönderim sistemi API collection'ı",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "insider-sms-api"
+	},
+	"item": [
+		{
+			"name": "Messages",
+			"item": [
+				{
+					"name": "Get All Messages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/messages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"messages"
+							]
+						},
+						"description": "Gönderilmiş tüm mesajları listeler"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/messages",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"content\": \"Test mesajı\",\n            \"status\": \"sent\",\n            \"external_message_id\": \"msg_123456\",\n            \"sent_at\": \"2025-09-09T13:00:00.000000Z\",\n            \"created_at\": \"2025-09-09T12:59:00.000000Z\",\n            \"recipients\": [\n                {\n                    \"id\": 1,\n                    \"phone_number\": \"+905551234567\",\n                    \"name\": \"John Doe\",\n                    \"status\": \"sent\",\n                    \"external_message_id\": \"msg_123456\",\n                    \"sent_at\": \"2025-09-09T13:00:00.000000Z\"\n                }\n            ]\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Test mesajı\",\n    \"recipients\": [\n        {\n            \"phone_number\": \"+905551234567\",\n            \"name\": \"John Doe\"\n        },\n        {\n            \"phone_number\": \"+905559876543\",\n            \"name\": \"Jane Smith\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/messages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"messages"
+							]
+						},
+						"description": "Yeni mesaj oluşturur ve gönderim için kuyruğa ekler"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"content\": \"Test mesajı\",\n    \"recipients\": [\n        {\n            \"phone_number\": \"+905551234567\",\n            \"name\": \"John Doe\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/messages",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {},\n    \"message\": \"Mesaj başarıyla oluşturuldu.\"\n}"
+						},
+						{
+							"name": "Validation Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"content\": \"\",\n    \"recipients\": []\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/messages",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"The given data was invalid.\",\n    \"errors\": {\n        \"content\": [\n            \"The content field is required.\"\n        ],\n        \"recipients\": [\n            \"The recipients field is required.\"\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Message by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/messages/{{message_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"{{message_id}}"
+							]
+						},
+						"description": "Belirli bir mesajın detaylarını getirir"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/messages/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 1,\n        \"content\": \"Test mesajı\",\n        \"status\": \"sent\",\n        \"external_message_id\": \"msg_123456\",\n        \"sent_at\": \"2025-09-09T13:00:00.000000Z\",\n        \"created_at\": \"2025-09-09T12:59:00.000000Z\",\n        \"recipients\": [\n            {\n                \"id\": 1,\n                \"phone_number\": \"+905551234567\",\n                \"name\": \"John Doe\",\n                \"status\": \"sent\",\n                \"external_message_id\": \"msg_123456\",\n                \"sent_at\": \"2025-09-09T13:00:00.000000Z\"\n            }\n        ]\n    }\n}"
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/messages/999",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages",
+										"999"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Mesaj bulunamadı.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Sent Messages List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/messages/sent/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"sent",
+								"list"
+							]
+						},
+						"description": "Gönderilmiş mesajların ID listesini getirir"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/messages/sent/list",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages",
+										"sent",
+										"list"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"message_ids\": [\n            \"msg_123456\",\n            \"msg_789012\",\n            \"msg_345678\"\n        ],\n        \"count\": 3\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Check Message Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/messages/status/{{external_message_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"status",
+								"{{external_message_id}}"
+							]
+						},
+						"description": "Belirli bir mesajın gönderim durumunu kontrol eder"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/messages/status/msg_123456",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages",
+										"status",
+										"msg_123456"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"message_id\": \"msg_123456\",\n        \"status\": \"sent\",\n        \"sent_at\": \"2025-09-09T13:00:00.000000Z\",\n        \"delivery_status\": \"delivered\"\n    }\n}"
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/messages/status/invalid_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"messages",
+										"status",
+										"invalid_id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Mesaj bulunamadı.\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Mesaj yönetimi ile ilgili tüm API endpoint'leri"
+		},
+		{
+			"name": "Documentation",
+			"item": [
+				{
+					"name": "API Documentation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/documentation",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"documentation"
+							]
+						},
+						"description": "Swagger UI API dokümantasyonu"
+					},
+					"response": []
+				}
+			],
+			"description": "API dokümantasyonu endpoint'leri"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost",
+			"type": "string"
+		},
+		{
+			"key": "message_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "external_message_id",
+			"value": "msg_123456",
+			"type": "string"
+		}
+	]
+}

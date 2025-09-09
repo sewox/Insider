@@ -1,0 +1,38 @@
+
+services:
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl  # SSL sertifikaları için
+
+  app:
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    restart: always
+
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    restart: always
+
+  redis:
+    restart: always
+
+  queue:
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    restart: always
+    deploy:
+      replicas: 2  # Production'da 2 queue worker
+
+  scheduler:
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    restart: always

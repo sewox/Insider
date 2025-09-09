@@ -1,0 +1,130 @@
+
+services:
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: insider_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - insider_network
+
+  # PHP-FPM Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: insider_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    env_file:
+      - .env.docker
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - insider_network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: insider_mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: insider_sms
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: insider_user
+      MYSQL_PASSWORD: insider_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - insider_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: insider_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - insider_network
+
+  # Queue Worker (Separate container for better scaling)
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: insider_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    env_file:
+      - .env.docker
+    depends_on:
+      - mysql
+      - redis
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    networks:
+      - insider_network
+
+  # Scheduler (Cron jobs)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: insider_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    env_file:
+      - .env.docker
+    depends_on:
+      - mysql
+      - redis
+    command: |
+      sh -c "
+        while true; do
+          php artisan schedule:run
+          sleep 60
+        done
+      "
+    networks:
+      - insider_network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  insider_network:
+    driver: bridge
