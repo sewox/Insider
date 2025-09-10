@@ -17,6 +17,7 @@ Bu proje, belirli bir segmentteki kullanıcılara toplu mesaj göndermek için t
 - ✅ **Unit ve Integration** testler
 - ✅ **RESTful API** standartları
 - ✅ **Rate Limiting** ile API koruması
+- ✅ **Retry Mekanizması** ile hata toleransı
 
 ## Teknik Gereksinimler
 
@@ -341,6 +342,21 @@ docker-compose exec app php artisan test tests/Feature/RateLimitTest.php
 - ✅ Rate limit header kontrolü
 - ✅ Rate limit reset testi
 
+#### Retry Mekanizması Testleri
+
+```bash
+# Retry mekanizması testlerini çalıştır
+docker-compose exec app php artisan test tests/Feature/RetryTest.php
+```
+
+**Retry Test Coverage:**
+- ✅ SMS service retry mechanism testi
+- ✅ Tüm denemeler başarısız testi
+- ✅ SendMessageJob retry konfigürasyonu
+- ✅ Queue ile retry testi
+- ✅ Exponential backoff timing testi
+- ✅ Farklı hata türleri ile retry testi
+
 ### Manuel Test
 
 #### Unit Testleri Çalıştırın
@@ -449,6 +465,39 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 - `sent_at`: Gönderim zamanı
 - `error_message`: Hata mesajı
 - `created_at`, `updated_at`: Timestamp'ler
+
+## Retry Mekanizması
+
+SMS gönderiminde hata durumunda otomatik retry mekanizması:
+
+### SendMessageJob Retry
+- **Maksimum Deneme**: 5 kez
+- **Backoff Süreleri**: 30s, 1m, 2m, 4m
+- **Timeout**: 2 dakika
+- **Queue Driver**: Redis
+
+### SmsService Retry
+- **Maksimum Deneme**: 5 kez
+- **Backoff Stratejisi**: Exponential backoff (2s, 4s, 6s, 8s)
+- **Retry Koşulları**: HTTP hataları ve network timeout'ları
+- **Logging**: Her deneme detaylı loglanır
+
+### Retry Senaryoları
+1. **Network Timeout**: Bağlantı zaman aşımı
+2. **HTTP 5xx Errors**: Sunucu hataları
+3. **HTTP 4xx Errors**: İstemci hataları (retry edilmez)
+4. **Exception**: Beklenmeyen hatalar
+
+### Retry Logları
+```json
+{
+    "phone_number": "+905551234567",
+    "attempt": 3,
+    "max_retries": 5,
+    "error": "Service unavailable",
+    "response_status": 503
+}
+```
 
 ## Redis Cache
 

@@ -18,7 +18,8 @@ class SendMessageJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 120; // 2 dakika timeout
-    public $tries = 3; // 3 kez dene
+    public $tries = 5; // 5 kez dene
+    public $backoff = [30, 60, 120, 240]; // 30s, 1m, 2m, 4m bekle
 
     protected $messageId;
     protected $recipientId;
