@@ -35,7 +35,7 @@ Bu proje, belirli bir segmentteki kullanıcılara toplu mesaj göndermek için t
 #### 1. Projeyi klonlayın
 
 ```bash
-git clone <repository-url>
+git clone git@github.com:sewox/Insider.git
 cd Insider
 ```
 
@@ -87,7 +87,7 @@ docker-compose logs -f
 #### 1. Projeyi klonlayın
 
 ```bash
-git clone <repository-url>
+git clone git@github.com:sewox/Insider.git
 cd Insider
 ```
 
