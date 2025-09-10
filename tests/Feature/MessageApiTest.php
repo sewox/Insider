@@ -10,11 +10,13 @@ use Tests\TestCase;
 
 class MessageApiTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use WithFaker;
 
     public function test_create_message_success(): void
     {
-        // Arrange
+        // Arrange - önceki testlerden kalan verileri temizle
+        Message::query()->delete();
+        
         $data = [
             'content' => 'Test mesajı',
             'recipients' => [
@@ -112,7 +114,9 @@ class MessageApiTest extends TestCase
 
     public function test_get_sent_messages(): void
     {
-        // Arrange
+        // Arrange - önceki testlerden kalan verileri temizle
+        Message::query()->delete();
+        
         $message = Message::factory()->create([
             'status' => Message::STATUS_SENT,
             'external_message_id' => 'msg_123456'
@@ -151,7 +155,9 @@ class MessageApiTest extends TestCase
 
     public function test_get_sent_message_ids(): void
     {
-        // Arrange
+        // Arrange - önceki testlerden kalan verileri temizle
+        Message::query()->delete();
+        
         $message1 = Message::factory()->create([
             'status' => Message::STATUS_SENT,
             'external_message_id' => 'msg_123456'

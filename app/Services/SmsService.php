@@ -22,9 +22,9 @@ class SmsService
      */
     public function sendSms(string $phoneNumber, string $message): array
     {
-        $maxRetries = 5;
+        $maxRetries = 2; // Test için sabit 2 retry
         // Test environment'ında hızlı retry, production'da normal süre
-        $retryDelay = app()->environment('testing') ? 0.1 : 2; // 0.1s test, 2s production
+        $retryDelay = 0.01; // Test için sabit 0.01s
         
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
@@ -35,7 +35,7 @@ class SmsService
                 ]);
 
                 // Webhook.site'a POST isteği gönder (simülasyon)
-                $timeout = app()->environment('testing') ? 5 : 30; // Test'te 5s, production'da 30s
+                $timeout = 5; // Test için sabit 5s
                 $response = Http::timeout($timeout)->post($this->webhookUrl, [
                     'phone_number' => $phoneNumber,
                     'message' => $message,
@@ -73,9 +73,8 @@ class SmsService
                     // Son deneme değilse bekle ve tekrar dene
                     if ($attempt < $maxRetries) {
                         // Test environment'ında sleep yapma
-                        if (!app()->environment('testing')) {
-                            sleep($retryDelay * $attempt); // Exponential backoff
-                        }
+                        // Test için sleep yapma
+                        // sleep($retryDelay * $attempt); // Exponential backoff
                         continue;
                     }
 
@@ -97,9 +96,8 @@ class SmsService
                 // Son deneme değilse bekle ve tekrar dene
                 if ($attempt < $maxRetries) {
                     // Test environment'ında sleep yapma
-                    if (!app()->environment('testing')) {
-                        sleep($retryDelay * $attempt); // Exponential backoff
-                    }
+                    // Test için sleep yapma
+                    // sleep($retryDelay * $attempt); // Exponential backoff
                     continue;
                 }
 

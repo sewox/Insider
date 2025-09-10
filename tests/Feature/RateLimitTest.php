@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class RateLimitTest extends TestCase
 {
-    use RefreshDatabase;
+    
 
     /**
      * Test message creation rate limit
